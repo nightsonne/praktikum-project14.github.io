@@ -8,7 +8,7 @@ const cardsRouter = require('./routes/cards.js');
 
 const { createUser, login } = require('./controllers/users');
 
-const { PORT = 4000 } = process.env;
+const { PORT = 3000 } = process.env;
 
 const app = express();
 
