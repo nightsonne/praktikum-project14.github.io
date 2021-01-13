@@ -21,10 +21,18 @@ module.exports.findUser = (req, res) => {
     .catch(() => res.status(400).send({ message: 'Произошла ошибка при поиске пользователя' }));
 };
 
+// eslint-disable-next-line consistent-return
 module.exports.createUser = (req, res) => {
   const {
     name, about, avatar, email, password,
   } = req.body;
+  const passwordPattern = new RegExp(/[A-Za-z0-9]{8,}$/);
+
+  if (!passwordPattern.test(password)) {
+    return res.status(400).send({
+      message: 'Неверный формат пароля, нельзя использовать пробелы и киррилицу',
+    });
+  }
 
   bcrypt.hash(password, 10)
     .then((hash) => User.create({
@@ -38,7 +46,12 @@ module.exports.createUser = (req, res) => {
         email: user.email,
       },
     }))
-    .catch(() => res.status(400).send({ message: 'Произошла ошибка при создании пользователя' }));
+    .catch((err) => {
+      if (err.name === 'MongoError' && err.code === 11000) {
+        return res.status(409).send({ message: 'Пользователь с таким емейлом уже зарегистрирован' });
+      }
+      return res.status(400).send({ message: 'Произошла ошибка при создании пользователя' });
+    });
 };
 
 module.exports.login = (req, res) => {

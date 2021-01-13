@@ -10,14 +10,14 @@ module.exports.deleteCard = (req, res) => {
   Card.findById(req.params.id)
     .then((card) => {
       if (card) {
-        if (card.owner === req.user._id) {
+        if (card.owner.toString() === req.user._id.toString()) {
           Card.findByIdAndRemove(req.params.id)
-            .then((card) => {
-              if (!card) {
+            .then((item) => {
+              if (!item) {
                 res.status(404).json({ message: 'Такой карточки не существует' });
                 return;
               }
-              res.status(200).send({ data: card });
+              res.status(200).send({ data: item });
             });
         } else {
           res.status(403).send({ message: 'В доступе отказано' });
